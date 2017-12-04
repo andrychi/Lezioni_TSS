@@ -5,6 +5,7 @@
  */
 package pkg30.pkg11.pkg17.luca.sportello.avanzato;
 
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 /**
@@ -13,8 +14,8 @@ import javax.swing.JOptionPane;
  */
 public class LucaSportelloAvanzato {
 static double saldo = 0.000;
-    static String codici[];
-    static double prezzi[];
+    static ArrayList<String> codici;
+    static ArrayList<Double> prezzi;
     /**
      * @param args the command line arguments
      */
@@ -54,11 +55,9 @@ static double saldo = 0.000;
         double soldi_versati;
         do {
 
-            soldi_versati = inputvaluta("inserisci banconote o moneta\nil tuo saldo attuale è " + saldo + " $" );
+            soldi_versati = inputvaluta("inserisci banconote o moneta\nil tuo saldo attuale è " + saldo + " $");
             saldo += soldi_versati;
             soldi_versati = decimali(saldo, 2);
-            
-            
 
         } while (soldi_versati == 0);
     }
@@ -96,16 +95,16 @@ static double saldo = 0.000;
         int posizioneok = -1;
         //cerco nei codici la posizione di codice se esiste
 
-        for (int i = 0; i < codici.length; i++) {
-            // se in posizione i trovo codice in codici[i] ok trovato e mi segno la posizione
-            if (codice.equals(codici[i].toUpperCase())) {
+        for (int i = 0; i < codici.size(); i++) {
+            // se in posizione i trovo codice in codici.get(i) ok trovato e mi segno la posizione
+            if (codice.equals(codici.get(i).toUpperCase())) {
                 posizioneok = i;
                 break;
             }
         }
         double costo = 0;
         if (posizioneok >= 0) {
-            costo = prezzi[posizioneok];
+            costo = prezzi.get(posizioneok);
 
             if (saldo >= costo) {
                 saldo -= costo;
@@ -163,42 +162,49 @@ static double saldo = 0.000;
     }
 
     static void init_setup() {
-        // chiedere quanti reparti vuole l'utente        
-        int numrep = (int) inputvaluta("Buongiorno\nquanti reparti vuoi utilizzare nella macchinetta?");
 
         //in base al numero dei reparti creare array per prezzi e codici
-        codici = new String[numrep];
-        prezzi = new double[numrep];
+        codici = new ArrayList<String>();
+        prezzi = new ArrayList<Double>();
 
         // chiedere di inserire prima il codice poi il prezzo per tutti i reparti
-        for (int i = 0; i < codici.length; i++) {
-        //caricare codice di testo
-        codici[i]=JOptionPane.showInputDialog("inserisci il codice (ad es. A1)");       
-        
-        //caricare prezzo del codice
-        prezzi [i] = inputvaluta("inserisci il prezzo del codice :" + codici[i]);
-        prezzi[i]=decimali(prezzi[i], 2);
-        }
-        
-        //al termine codici e prezzi compilati ok per iniziare la distribuzione 
-    }
-    
-    static String listino() {
-    String inizio= "\n-----Listino prezzi-----\n";
-    String fine= "-----  Fine Listino  ----\nsaldo : " + saldo + "\n-----------------------------";
-    
-        for (int i = 0; i < codici.length; i++) {
-            int pos_dec=0;
-            String prezzo=String.valueOf(prezzi[i]);
-            pos_dec=prezzo.indexOf(".");
-            if (prezzo.length()-pos_dec==2) {
-                prezzo+="0";
+        int i = 0;
+        boolean finito = false;
+        do {
+
+            String nuovo_codice = JOptionPane.showInputDialog("inserisci l'etichetta del prodotto (ad es. Coca-Cola)");
+            codici.add(nuovo_codice);
+            //caricare prezzo del codice
+            String nuovo_prezzo = JOptionPane.showInputDialog("inserisci il prezzo del codice :" + codici.get(i));
+            double nv = Integer.parseInt(nuovo_prezzo);
+            prezzi.add(nv);
+            nv = arrotonda(nv);
+            String risposta = JOptionPane.showInputDialog("vuoi inserire un nuovo prodotto?\nSI : inserire nuovo prodotto\nNO : fine inserimento prodotto").toUpperCase();
+            if (!risposta.equals("SI")) {
+                finito=true;
             }
-            prezzo="                             "+prezzo;
-            prezzo=prezzo.substring((prezzo.length()-7),prezzo.length());
-            inizio= inizio + codici[i]+" :  " +  prezzo + "\n";
+            i++;
+
+        } while (!finito);
+
+    }
+
+    static String listino() {
+        String inizio = "\n-----Listino prezzi-----\n";
+        String fine = "-----  Fine Listino  ----\nsaldo : " + saldo + "\n-----------------------------";
+
+        for (int i = 0; i < codici.size(); i++) {
+            int pos_dec = 0;
+            String prezzo = String.valueOf(prezzi.get(i));
+            pos_dec = prezzo.indexOf(".");
+            if (prezzo.length() - pos_dec == 2) {
+                prezzo += "0";
+            }
+            prezzo = "                             " + prezzo;
+            prezzo = prezzo.substring((prezzo.length() - 7), prezzo.length());
+            inizio = inizio + codici.get(i) + " :  " + prezzo + "\n";
         }
-    inizio=inizio+fine;
-    return inizio;
+        inizio = inizio + fine;
+        return inizio;
     }
 }
